@@ -1,0 +1,127 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+// Abstract base class Employee
+class Employee {
+protected:
+    string name;
+    int empID;
+
+public:
+    // Constructor
+    Employee(string empName, int empID) : name(empName), empID(empID) {}
+
+    // Pure virtual functions
+    virtual void printDetails() = 0;
+    virtual double calculateSalary() = 0;
+
+    // Virtual destructor to ensure proper cleanup
+    virtual ~Employee() {}
+};
+
+// Derived class for Full-Time Employees
+class FullTimeEmployee : public Employee {
+private:
+    double basicSalary;
+
+public:
+    // Constructor
+    FullTimeEmployee(string empName, int empID, double salary)
+        : Employee(empName, empID), basicSalary(salary) {}
+
+    // Override printDetails
+    void printDetails() override {
+        cout << "Full-Time Employee: " << name << ", ID: " << empID << endl;
+        cout << "Basic Salary: $" << basicSalary << endl;
+    }
+
+    // Override calculateSalary
+    double calculateSalary() override {
+        return basicSalary;
+    }
+};
+
+// Derived class for Part-Time Employees
+class PartTimeEmployee : public Employee {
+private:
+    double hourlyWage;
+    int hoursWorked;
+
+public:
+    // Constructor
+    PartTimeEmployee(string empName, int empID, double wage, int hours)
+        : Employee(empName, empID), hourlyWage(wage), hoursWorked(hours) {}
+
+    // Override printDetails
+    void printDetails() override {
+        cout << "Part-Time Employee: " << name << ", ID: " << empID << endl;
+        cout << "Hourly Wage: $" << hourlyWage << ", Hours Worked: " << hoursWorked << endl;
+    }
+
+    // Override calculateSalary
+    double calculateSalary() override {
+        return hourlyWage * hoursWorked;
+    }
+};
+
+int main() {
+    int numEmployees;
+
+    // Ask for the number of employees
+    cout << "Enter the number of employees: ";
+    cin >> numEmployees;
+
+    // Dynamically create an array of pointers to Employee
+    Employee* employees[numEmployees];
+
+    for (int i = 0; i < numEmployees; ++i) {
+        string name;
+        int empID, empType;
+        cout << "\nEnter details for Employee #" << (i + 1) << ":" << endl;
+        cout << "Name: ";
+        cin >> name;
+        cout << "Employee ID: ";
+        cin >> empID;
+
+        // Ask for the type of employee (Full-Time or Part-Time)
+        cout << "Enter 1 for Full-Time or 2 for Part-Time: ";
+        cin >> empType;
+
+        if (empType == 1) {
+            double basicSalary;
+            cout << "Enter the basic salary: $";
+            cin >> basicSalary;
+
+            // Create FullTimeEmployee and store in the array
+            employees[i] = new FullTimeEmployee(name, empID, basicSalary);
+        } else if (empType == 2) {
+            double hourlyWage;
+            int hoursWorked;
+            cout << "Enter the hourly wage: $";
+            cin >> hourlyWage;
+            cout << "Enter the number of hours worked: ";
+            cin >> hoursWorked;
+
+            // Create PartTimeEmployee and store in the array
+            employees[i] = new PartTimeEmployee(name, empID, hourlyWage, hoursWorked);
+        } else {
+            cout << "Invalid input. Please enter 1 or 2." << endl;
+            --i;  // Retry current employee input
+        }
+    }
+
+    // Display details and calculate salary for all employees
+    cout << "\nEmployee Details and Salaries:\n";
+    for (int i = 0; i < numEmployees; ++i) {
+        employees[i]->printDetails();
+        cout << "Calculated Salary: $" << employees[i]->calculateSalary() << "\n" << endl;
+    }
+
+    // Free dynamically allocated memory
+    for (int i = 0; i < numEmployees; ++i) {
+        delete employees[i];
+    }
+
+    return 0;
+}
